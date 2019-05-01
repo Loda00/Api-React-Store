@@ -2,7 +2,7 @@ const { Pool } = require('pg')
 
 const { _config } = require('../config/_config')
 
-class Product {
+class Login {
   constructor() {
     this.instance = undefined
   }
@@ -12,18 +12,17 @@ class Product {
       this.instance = new Pool(_config.DATABASE)
     }
   }
-  
-  async getProducts() {
+
+  async getToken(id_email) {
 
     this.connection()
 
     const cli = await this.instance.connect()
-    
-    let res;
-    const query = `select c.category, ma.brand, p.image, mo.model, p.price, p.stock from producto p INNER JOIN categoria c
-                    ON p.category = c.id INNER JOIN marca ma
-                    ON p.brand = ma.id INNER JOIN modelo mo
-                    ON p.model = mo.id`
+
+    let res
+    const query = `select u.id_email, u.name, u.lastname, u.userid, u.photo, u.password, r.roll_description from usuario u inner join roll r ON
+                    u.roll = r.id
+                    where id_email = ${id_email}`
 
     try {
       res = await cli.query(query)
@@ -38,5 +37,5 @@ class Product {
 }
 
 module.exports = {
-  Product
+  Login
 }

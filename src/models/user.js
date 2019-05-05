@@ -55,6 +55,23 @@ class User {
     }
     return res
   }
+
+  async getUsers() {
+
+    this.connection()
+    const cli = await this.instance.connect()
+    let res
+
+    const query = 'select * from usuario'
+    try {
+      res = await cli.query(query)
+      await cli.query('COMMIT')
+    } catch (error) {
+      await cli.query('ROLLBACK')
+      throw new Error(error)
+    }
+    return res
+  }
 }
 
 module.exports = {

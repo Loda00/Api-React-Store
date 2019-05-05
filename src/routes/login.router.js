@@ -12,31 +12,37 @@ app.post('/login', async (req, res) => {
   const { id_email, password } = req.body
 
   const data = await login.getToken(id_email)
+  console.log('datsa', data.rows, password)
 
   if (!data) {
     return res.status(404).json({
       ok: false,
       result: `Usuario y/o contraseña incorrectos`
     })
-  } 
-  console.log('data', data)
+  }
+
   const hash = data.rows[0].password
   const resPassword = await bcrypt.compareSync(password, hash);
 
   if (!resPassword) {
     return res.status(403).json({
       ok: false,
-      result: `La contraseña es incorrecta ${e}`
+      result: `La contraseña es incorrecta`
     })
   }
+  const payload = {
+    id_email: data.rows[0].id_email,
+    name: data.rows[0].name,
+    userid: data.rows[0].userid,
+  }
 
-    if (resPassword) {
-    const token = jwt.sign({id: data.rows[0].id_email}, _config.keySecretToken, { 
-      expiresIn: 86400
+  if (resPassword) {
+    const token = jwt.sign(payload, _config.keySecretToken, {
+      expiresIn: 60 * 60 * 24
     })
-    
+
     return res.status(200).send({
-      auth: true, 
+      auth: true,
       token: token
     })
 

@@ -1,25 +1,30 @@
 const jwt = require('jsonwebtoken')
+const { _config } = require('../config/_config')
 
-let virificaToken = (req, res, next) => {
-    let token = req.get('token')
-    console.log(token);
-
-    jwt.verify(token,'seed' , (err, decoded) => {
-        if (err) {
-            return res.status(401).json({
-                ok: false,
-                err
-            })
-        }
-
-        
-    })
-    next()    
-    // res.json({
-    //     token
-    // })
-}
+const verifyToken = (req, res, next) => {
+    var token = req.headers['authorization']
+    if (!token) {
+      return res.status(401).send({
+        ok: false,
+        message: '403 Forbidden'
+      })
+    }
+    
+    token = token.replace('Bearer ', '')
+   
+    jwt.verify(token, _config.keySecretToken, function(err, token) {
+      if (err) {
+        return res.status(401).send({
+          ok: false,
+          message: 'Toket inválido'
+        });
+      } else {
+        req.token = token
+        next()
+      }
+    });
+  }
 
 module.exports = {
-    virificaToken
+    verifyToken
 }

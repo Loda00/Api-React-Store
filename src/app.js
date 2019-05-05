@@ -6,7 +6,13 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-app.use('/api', 
+
+app.use((req, res, next ) => {
+    console.log(new Date().toLocaleDateString())
+    next()
+})
+
+app.use('/api',
     require('./routes/product.router'),
     require('./routes/user.router'),
     require('./routes/login.router')

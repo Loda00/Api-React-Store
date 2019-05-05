@@ -1,11 +1,12 @@
 const express = require('express')
 const app = express()
+const { verifyToken } = require('../middleware/autenticacion')
 
 const { Product } = require('../models/products')
 
 const product = new Product()
 
-app.get('/products', async (req, res) => {
+app.get('/products', verifyToken, async (req, res) => {
   
   const data = await  product.getProducts()
 

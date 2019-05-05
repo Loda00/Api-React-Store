@@ -2,13 +2,34 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const app = express()
 
+const { verifyToken } = require('../middleware/autenticacion')
 const { User } = require('../models/user')
 
 const user = new User()
 
-app.get('/user', async (req, res) => {
-  const { id_email } = req.query
-  console.log('params', req.query)
+
+app.get('/user', verifyToken, async (req, res) => {
+  
+  const data = await user.getUsers()
+
+  if (!data) {
+    return res.status(403).json({
+      ok: false,
+      error: data
+    })
+  }
+
+  const result = data.rows
+  result.forEach(item => delete item.password )
+
+  res.status(200).json({
+    ok: true,
+    data:  result
+  })
+})
+
+app.get('/user/:id_email', verifyToken, async (req, res) => {
+  const { id_email } = req.params
   const data = await user.getUser(id_email)
 
   if (!data) {
@@ -17,13 +38,13 @@ app.get('/user', async (req, res) => {
       error: data
     })
   }
-  const token = req.headers
 
-  delete data.rows[0].password
+  const result = data.rows
+  delete result[0].password
 
   res.status(200).json({
     ok: true,
-    data
+    data: result
   })
 })
 
@@ -51,25 +72,25 @@ app.post('/user', async (req, res) => {
 
   // console.log('is', isEmail)
 
-  res.json({
-    ok: 200
-  })
-
-  // const password = bcrypt.hashSync('password', 10)
-  
-  // const data = await user.addUser(id_email, name, lastName, userId, 'photo', 'password', true, 1)
-
-  // if (!data) {
-  //   return res.status(404).json({
-  //     ok: false,
-  //     data
-  //   })
-  // }
-
-  // res.status(200).json({
-  //   ok: true,
-  //   data
+  // res.json({
+  //   ok: 200
   // })
+
+  const password = bcrypt.hashSync('password', 10)
+  
+  const data = await user.addUser(id_email, name, lastName, userId, 'photo', 'password', true, 1)
+
+  if (!data) {
+    return res.status(404).json({
+      ok: false,
+      data
+    })
+  }
+
+  res.status(200).json({
+    ok: true,
+    data
+  })
 })
 
 // router.post ('/ login', function (req, res) {

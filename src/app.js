@@ -19,7 +19,8 @@ app.use((req, res, next ) => {
 app.use('/api',
     require('./routes/product.router'),
     require('./routes/user.router'),
-    require('./routes/login.router')
+    require('./routes/login.router'),
+    require('./routes/help.router')
     )
 
 app.listen(_config.PORT.port , () => {
